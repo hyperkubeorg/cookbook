@@ -48,3 +48,13 @@ spec:
       ## Used to set replication factor when isMultiAz is set to true
       totalMasters: 3
 ```
+
+After Yugabyte is installed, you can access it via the cli.
+```bash
+kubectl -n database-system exec -it yb-tserver-0 -- ysqlsh -U yugabyte
+```
+
+If you would like to access it locally, you can expose the service with port forwarding.
+```bash
+kubectl -n database-system port-forward svc/yb-tserver-service 5433:5433
+```
