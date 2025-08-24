@@ -65,11 +65,13 @@ The dashboard can be configured for
 
 The following configuration creates a service account that has full admin permissions.
 ```yaml:dashboard-admin.yaml
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: dashboard-admin-sa
   namespace: kubernetes-dashboard
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
