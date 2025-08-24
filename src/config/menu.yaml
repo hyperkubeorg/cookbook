@@ -103,6 +103,6 @@ settings:
   
   # GitHub integration (optional)
   github:
-    enabled: false           # Set to false to disable source links
-    repo: "samintheshell/cookbook"  # GitHub repository (format: "owner/repo")
+    enabled: true           # Set to false to disable source links
+    repo: "hyperkubeorg/cookbook"  # GitHub repository (format: "owner/repo")
     branch: "main"          # Default branch name
