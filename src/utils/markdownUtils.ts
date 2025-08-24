@@ -248,7 +248,7 @@ export async function loadAllMarkdownFiles(): Promise<DocPage[]> {
     for (const [filePath, content] of Object.entries(markdownFiles)) {
       const title = extractTitle(content);
       const id = filePath.split('/').pop()?.replace('.md', '') || '';
-      const path = '/' + id.toLowerCase();
+      const path = '/' + id.toLowerCase() + '/';
       
       pages.push({
         id,
@@ -277,7 +277,7 @@ export async function loadAllBlogPosts(): Promise<BlogPost[]> {
       const excerpt = extractExcerpt(content);
       const cleanId = extractCleanId(filePath);
       const numericPrefix = extractNumericPrefix(filePath);
-      const path = '/blog/' + cleanId.toLowerCase();
+      const path = '/blog/' + cleanId.toLowerCase() + '/';
       
       posts.push({
         id: cleanId,

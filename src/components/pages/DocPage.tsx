@@ -48,12 +48,13 @@ const DocPage: React.FC = () => {
         // Handle root path redirect
         if (!slug && window.location.pathname === '/') {
           const landingPage = await getLandingPage();
-          navigate(landingPage, { replace: true });
+          const normalizedLandingPage = landingPage.endsWith('/') ? landingPage : landingPage + '/';
+          navigate(normalizedLandingPage, { replace: true });
           return;
         }
         
         // Find the current page based on the slug
-        const path = slug ? `/${slug}` : '/getting-started';
+        const path = slug ? `/${slug}/` : '/getting-started/';
         const page = findPageByPath(pages, path);
         
         if (page) {

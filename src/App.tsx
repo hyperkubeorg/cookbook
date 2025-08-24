@@ -39,15 +39,19 @@ export default function App() {
                     {/* Root redirects to getting-started */}
                     <Route path="/" element={<DocPage />} />
                     
-                    {/* Blog routes */}
+                    {/* Blog routes - support both with and without trailing slash */}
                     <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/blog/" element={<BlogPage />} />
                     <Route path="/blog/:slug" element={<BlogPage />} />
+                    <Route path="/blog/:slug/" element={<BlogPage />} />
                     
-                    {/* Dynamic documentation routes */}
+                    {/* Dynamic documentation routes - support both with and without trailing slash */}
                     <Route path="/:slug" element={<DocPage />} />
+                    <Route path="/:slug/" element={<DocPage />} />
 
                     {/* Explicit 404 route */}
                     <Route path="/404" element={<NotFoundPage />} />
+                    <Route path="/404/" element={<NotFoundPage />} />
 
                     {/* Catch-all 404 Route - MUST REMAIN AT BOTTOM */}
                     <Route path="*" element={<NotFoundPage />} />

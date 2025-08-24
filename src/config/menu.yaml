@@ -5,7 +5,7 @@ sections:
 # Blog section
 - title: "Blog"
   type: "link"
-  path: "/blog"
+  path: "/blog/"
   showDivider: false
   
 # Application Development
@@ -102,7 +102,7 @@ settings:
   showEmptySections: false  # Hide sections with no visible items
   
   # Landing page configuration
-  landingPage: "/overview"  # Default page when visiting "/"
+  landingPage: "/overview/"  # Default page when visiting "/"
   
   # GitHub integration (optional)
   github:

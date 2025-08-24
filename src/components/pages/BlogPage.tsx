@@ -62,7 +62,7 @@ const BlogPage: React.FC = () => {
         
         if (slug) {
           // Find the specific blog post
-          const path = `/blog/${slug}`;
+          const path = `/blog/${slug}/`;
           const post = findBlogPostByPath(posts, path);
           
           if (post) {

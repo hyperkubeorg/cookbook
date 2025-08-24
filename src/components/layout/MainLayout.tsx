@@ -45,7 +45,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, menuSections, allPage
   };
 
   const handleMenuClick = (path: string) => {
-    navigate(path);
+    // Ensure trailing slash for consistency
+    const normalizedPath = path.endsWith('/') ? path : path + '/';
+    navigate(normalizedPath);
     if (isMobile) {
       setMobileOpen(false);
     }
@@ -53,7 +55,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, menuSections, allPage
 
   const handleSearchSelect = (_: any, value: DocPage | null) => {
     if (value) {
-      navigate(value.path);
+      // Ensure trailing slash for consistency
+      const normalizedPath = value.path.endsWith('/') ? value.path : value.path + '/';
+      navigate(normalizedPath);
       // Keep search query so user can continue searching
     }
   };

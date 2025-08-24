@@ -228,10 +228,13 @@ const CustomLink: React.FC<CustomLinkProps> = ({ href, children }) => {
   );
 
   if (isInternalLink) {
+    // Ensure trailing slash for internal links
+    const normalizedHref = href!.endsWith('/') ? href! : href! + '/';
+    
     return (
       <Typography
         component={RouterLink}
-        to={href!}
+        to={normalizedHref}
         sx={{
           color: 'primary.main',
           textDecoration: 'underline',
