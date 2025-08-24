@@ -111,4 +111,4 @@ settings:
   github:
     enabled: true           # Set to false to disable source links
     repo: "hyperkubeorg/cookbook"  # GitHub repository (format: "owner/repo")
-    branch: "dae1667"          # Default branch name
+    branch: "main"          # Default branch name

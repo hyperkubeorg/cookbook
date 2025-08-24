@@ -24,6 +24,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Update commit hash in menu.yaml
+        run: |
+          COMMIT_HASH=$(git rev-parse --short=8 HEAD)
+          echo "Updating branch to commit hash: $COMMIT_HASH"
+          node -e "
+            const fs = require('fs');
+            const yaml = require('js-yaml');
+            const path = 'src/config/menu.yaml';
+            const content = fs.readFileSync(path, 'utf8');
+            const config = yaml.load(content);
+            if (config?.settings?.github) {
+              config.settings.github.branch = '$COMMIT_HASH';
+              fs.writeFileSync(path, yaml.dump(config, {indent: 2, lineWidth: -1, quotingType: '\"', forceQuotes: false}));
+              console.log('✅ Updated GitHub branch to: $COMMIT_HASH');
+            }
+          "
+
       - name: Build
         run: npm run build
 
