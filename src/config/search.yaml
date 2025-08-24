@@ -1,0 +1,33 @@
+# Search configuration for controlling which content appears in search results
+# This file controls what is excluded from the search functionality
+
+# Items to exclude from search
+# You can exclude by:
+# - section: exclude all items from a menu section
+# - ids: exclude specific page IDs
+# - patterns: exclude pages matching certain patterns
+
+exclusions:
+  # Exclude entire sections (based on menu.yaml section titles)
+  sections:
+    - "Application Development"  # Hide all items from this section
+    # - "Infrastructure Operations"  # Example: how to exclude another section
+  
+  # Exclude specific page IDs
+  ids:
+    - "overview-wip"
+    # - "backend-setup"      # Example: exclude specific pages
+    # - "frontend-setup"
+    # - "containerization"
+  
+  # Exclude pages matching patterns (regex supported)
+  patterns: []
+    # - "^draft-.*"          # Example: exclude all pages starting with "draft-"
+    # - ".*-wip$"           # Example: exclude all pages ending with "-wip"
+
+# Global search settings
+settings:
+  enableSearch: true           # Set to false to disable search entirely
+  maxResults: 10              # Maximum number of search results to show
+  searchContent: true         # Whether to search within page content (not just titles)
+  caseSensitive: false        # Whether search should be case sensitive

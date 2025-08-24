@@ -1,0 +1,11 @@
+/* Global Site CSS */
+
+/* Enable smooth scrolling for hash links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure headings have proper spacing when used as scroll targets */
+h1, h2, h3, h4, h5, h6 {
+  scroll-margin-top: 80px;
+}
