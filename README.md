@@ -8,11 +8,12 @@ A modern documentation site with blog functionality, built with React, TypeScrip
 
 - 📚 **Markdown-based documentation** - Write docs in markdown files
 - 📝 **Blog posts** - Share experiences and insights (separate from docs)
-- 🔍 **Full-text search** - Search across all documentation (docs only)
+- 🔍 **Configurable search** - Search across documentation with flexible exclusion rules
 - 🎨 **Syntax highlighting** - Code blocks with line numbers and copy buttons
 - 📱 **Responsive design** - Works great on desktop and mobile
 - 🔗 **Cross-linking** - Link between markdown files
 - 🌙 **Dark theme** - Easy on the eyes
+- 📖 **View Source** - Direct links to markdown files on GitHub
 - 🚀 **GitHub Pages ready** - Automatic deployment
 
 ## Quick Start
@@ -117,34 +118,74 @@ settings:
   github:
     enabled: true                    # Set to false to disable source links
     repo: "username/repository-name" # Your GitHub repository
-    branch: "main"                   # Default branch name
+    branch: "main"                   # Branch name (automatically updated to commit hash during deployment)
 ```
 
 When enabled, each documentation page and blog post will show a "View Source" button that links directly to the markdown file on GitHub.
 
-### Updating the Menu
+#### Automatic Commit Hash Updates
 
-The sidebar menu shows documentation pages (excluding some files) and the blog link.
+During GitHub Pages deployment, the build process automatically updates the `branch` value to the current 8-character commit hash. This ensures that "View Source" links always point to the exact commit used to build the deployed site, rather than potentially outdated content on the main branch.
 
-1. **Control which docs appear** in `src/utils/markdownUtils.ts`:
-   ```typescript
-   // In getMenuPages() function:
-   export function getMenuPages(allPages: DocPage[]): MenuPage[] {
-     return allPages
-       .filter(page => page.id !== 'advanced-concepts') // Exclude this page
-       .map(page => ({
-         id: page.id,
-         title: page.title,
-         path: page.path,
-       }));
-   }
+### Menu Configuration
+
+The sidebar menu is controlled by `src/config/menu.yaml`, which defines sections, items, and their visibility.
+
+1. **Configure menu sections** in `src/config/menu.yaml`:
+   ```yaml
+   sections:
+   - title: "Application Development" 
+     type: "section"
+     exclude: true  # Hide entire section from menu
+     items:
+     - id: "backend-setup"
+       label: "Backend Setup"
+     - id: "frontend-setup"
+       label: "Frontend Setup"
    ```
 
-2. **Menu order** is determined by:
-   - Documentation: Alphabetical by title
-   - Blog: Always appears at bottom with divider
+2. **Control individual item visibility**:
+   ```yaml
+   - id: "backups"
+     label: "Backups"
+     exclude: true  # Hide specific item from menu
+   ```
 
-3. **Menu appearance** can be customized in `src/components/layout/MainLayout.tsx`
+3. **Menu settings**:
+   ```yaml
+   settings:
+     autoGenerateLabels: true  # Use markdown titles if no label specified
+     sortItems: false          # Maintain order as defined above
+     showEmptySections: false  # Hide sections with no visible items
+   ```
+
+### Search Configuration
+
+Control which content appears in search results using `src/config/search.yaml`:
+
+1. **Exclude entire sections from search**:
+   ```yaml
+   exclusions:
+     sections:
+       - "Application Development"  # Hide all items from this section
+   ```
+
+2. **Exclude specific pages**:
+   ```yaml
+   exclusions:
+     ids:
+       - "overview-wip"
+       - "draft-feature"
+   ```
+
+3. **Search settings**:
+   ```yaml
+   settings:
+     enableSearch: true      # Set to false to disable search entirely
+     maxResults: 10         # Maximum number of search results
+     searchContent: true    # Search within page content (not just titles)
+     caseSensitive: false   # Whether search should be case sensitive
+   ```
 
 ### File Naming Conventions
 
@@ -189,12 +230,24 @@ This project automatically deploys to GitHub Pages when you push to the main bra
    - Branch: "gh-pages"
    - Folder: "/ (root)"
 
-2. **Update repository name** in `vite.config.ts`:
-   ```typescript
-   base: process.env.NODE_ENV === 'production' ? '/your-repo-name/' : '/',
+2. **Configure deployment path** in `src/config/menu.yaml`:
+   ```yaml
+   settings:
+     basePath: "/"               # For root domain (e.g., username.github.io)
+     # OR
+     basePath: "/repository-name/"  # For project pages (e.g., username.github.io/repo)
    ```
 
 3. **Push to main branch** - GitHub Actions will handle the rest!
+
+#### Deployment Path Configuration
+
+The project automatically reads the `basePath` from your menu configuration:
+
+- **Root domain deployment** (e.g., `username.github.io`): Use `basePath: "/"`
+- **Project pages deployment** (e.g., `username.github.io/repo-name`): Use `basePath: "/repo-name/"`
+
+This approach centralizes all deployment configuration in the menu.yaml file, eliminating the need to modify build scripts or Vite configuration files.
 
 #### Important Notes
 - The `dist` folder is ignored in git (build artifacts don't pollute main branch)
@@ -205,14 +258,16 @@ This project automatically deploys to GitHub Pages when you push to the main bra
 
 ```
 src/
-├── docs/                    # Documentation (searchable)
-│   ├── getting-started.md
-│   ├── user-guide.md
-│   └── advanced-topics.md
-├── blog/                    # Blog posts (not searchable, numeric prefix for ordering)
-│   ├── 00000001-welcome-post.md
-│   ├── 00000002-feature-updates.md
-│   └── 00000003-best-practices.md
+├── docs/                    # Documentation files (searchable, configured via menu.yaml)
+│   ├── overview.md
+│   ├── backend-setup.md
+│   ├── kubernetes.md
+│   └── [other docs...]
+├── blog/                    # Blog posts (numeric prefix for ordering)
+│   └── 00000001-a-work-in-progress.md
+├── config/
+│   ├── menu.yaml           # Menu structure and GitHub integration
+│   └── search.yaml         # Search configuration and exclusions
 ├── components/
 │   ├── layout/
 │   │   ├── MainLayout.tsx   # Main app layout with sidebar
@@ -221,9 +276,11 @@ src/
 │   │   ├── DocPage.tsx      # Documentation page component
 │   │   ├── BlogPage.tsx     # Blog listing and post component
 │   │   └── 404.tsx          # Not found page
-│   └── MarkdownRenderer.tsx # Markdown processing with syntax highlighting
+│   ├── MarkdownRenderer.tsx # Markdown processing with syntax highlighting
+│   └── ViewSource.tsx       # GitHub "View Source" component
 ├── utils/
-│   └── markdownUtils.ts     # File loading and processing utilities
+│   ├── markdownUtils.ts     # File loading, processing, and configuration utilities
+│   └── basePath.ts          # Base path utility for routing
 └── App.tsx                  # Main app with routing
 ```
 
@@ -236,6 +293,7 @@ src/
 - **React Router** - Client-side routing
 - **React Markdown** - Markdown processing with GitHub Flavored Markdown
 - **React Syntax Highlighter** - Code syntax highlighting with line numbers
+- **js-yaml** - YAML configuration file parsing
 - **Lucide React** - Modern icon library
 
 ## Development Tips
@@ -255,7 +313,9 @@ src/
 - **Theme colors**: Edit `src/App.tsx` theme configuration
 - **Layout spacing**: Modify `src/components/layout/MainLayout.tsx`
 - **Markdown styling**: Update `src/components/MarkdownRenderer.tsx`
-- **Search behavior**: Modify search logic in `MainLayout.tsx`
+- **Menu structure**: Modify `src/config/menu.yaml`
+- **Search behavior**: Configure `src/config/search.yaml` or modify search logic in `MainLayout.tsx`
+- **Base path**: Configure `basePath` in `src/config/menu.yaml`
 
 ## License
 
