@@ -38,21 +38,6 @@ spec:
   upgrade:
     remediation:
       remediateLastFailure: true
-
-  ## Secret with credentials are required for the chart to install.
-  ## Either use external-secrets or this command to populate admin creds.
-  ## kubectl --namespace minio create secret generic minio-admin --from-literal=username=admin --from-literal=password=$(openssl rand -hex 10)
-  valuesFrom:
-  - kind: Secret
-    name: minio-admin
-    valuesKey: username
-    targetPath: rootUser
-
-  - kind: Secret
-    name: minio-admin
-    valuesKey: password
-    targetPath: rootPassword
-
   values:
     ## Ref: https://github.com/minio/minio/blob/master/helm/minio/values.yaml
     # Number of drives attached to a node
@@ -90,5 +75,20 @@ spec:
       labelSelector:
         matchLabels:
           pool-name: minio-pool-01
-
 ```
+
+## Accessing Minio
+Get the admin credentials.
+```bash
+% kubectl -n minio get secret minio -o yaml | yq '.data | with_entries(.value |= @base64d)'  
+rootPassword: Nenz80E1TiK4AhZ4cqt0WX4wcxJYAp5ScSCNs3Hh
+rootUser: ukIW4Z60OPtYgiTxeRwJ
+```
+
+Start a port-forward with kubectl as shown below and go to `http://localhost:9001` in your browser.
+```bash
+kubectl -n minio port-forward svc/minio-console 9001:9001
+```
+
+# Exposing Buckets
+TODO: Create this section.

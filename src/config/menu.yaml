@@ -40,6 +40,9 @@ sections:
   - id: "continuous-delivery"
     label: "Continuous Delivery"
 
+  - id: "kubernetes-dashboard"
+    label: "Dashboard"
+
   - id: "certificate-management"
     label: "Certificate Management"
 
@@ -80,13 +83,13 @@ sections:
 #     label: "Draft Feature"
 
 # Misc
-- title: "Need Help?"
+- title: "Support"
   type: "section"
   showDivider: true
   items:
   - id: "contributing"
     label: "Contributing"
-    exclude: true
+    exclude: false
 
   - id: "need-help"
     label: "Need Help?"

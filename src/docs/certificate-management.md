@@ -47,6 +47,8 @@ spec:
 
 
 ## Configuring Issuers
+Note before proceeding, the LetsEncrypt issuer will not work in a local cluster.
+
 In the [Continuous Delivery](continuous-delivery.md) page, we mention the pseudochart package maintained by Hyperkube.
 This is used to force dependency order, as the CRDS in the issuer example wont be available until cert-manager is installed.
 

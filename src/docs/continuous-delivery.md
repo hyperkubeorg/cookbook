@@ -1,6 +1,6 @@
 # Continuous Delivery
 
-This cookbook leans heavily into using GitOps with [Flux2](https://fluxcd.io/flux/).
+This cookbook leans heavily into implementing GitOps with [Flux2](https://fluxcd.io/flux/).
 The opinion here is that Flux2 handles the deployment of resources better than alternatives like [Argo CD](https://argo-cd.readthedocs.io/en/stable/) or [Spinnaker](https://spinnaker.io/).
 With Flux2 when you deploy a helm chart through it, helm commands actually work for troubleshooting, as opposed to being stuck in some management UI.
 
@@ -33,6 +33,7 @@ helm --namespace flux-system upgrade flux2 flux2 --install --create-namespace --
 ```
 
 With the flux command, create a new source referencing the new repo and private key.
+A full demo repo is available [here](https://github.com/SamInTheShell/gitops-with-flux2).
 ```bash
 flux --namespace flux-system create source git gitops --branch main --url ssh://git@github.com/ORG-OR-USER/REPO_NAME.git --private-key-file ~/.ssh/gitops -s
 ```
@@ -162,3 +163,30 @@ helm search repo hyperkubeorg/pseudochart
 # Remove the repo, because helm repo/search are bad commands missing --repo flag
 helm repo rm hyperkubeorg
 ```
+
+## Troubleshooting Flux Deployments
+
+The first place to start is ensuring you have reconciled changes.
+```bash
+% flux -n flux-system reconcile source git gitops   
+► annotating GitRepository gitops in flux-system namespace
+✔ GitRepository annotated
+◎ waiting for GitRepository reconciliation
+✔ fetched revision main@sha1:db05a3b4860bdf218a5d74e6a01aecdbfa569d8d
+
+% flux -n flux-system reconcile kustomization gitops
+► annotating Kustomization gitops in flux-system namespace
+✔ Kustomization annotated
+◎ waiting for Kustomization reconciliation
+... takes a long time...
+```
+
+The above was stuck on reconciling the kustomization.
+Further details can be seen with kubectl.
+```bash
+% kubectl -n flux-system get kustomization
+NAME     AGE   READY   STATUS
+gitops   11m   False   HelmRepository/minio/minio not found: namespaces "minio" not found...
+```
+
+The problem in this example was that I tried to deploy a resource of `kind: HelmRepository` into a non-existent namespace.

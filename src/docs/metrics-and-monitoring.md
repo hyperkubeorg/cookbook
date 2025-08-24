@@ -69,6 +69,10 @@ spec:
 ```
 
 ## Metrics Server
+
+Installing the metrics server is necessary for other components to track CPU and memory stats.
+Also the `kubectl top` commands do not work without this software running in the cluster.
+
 ```yaml:metrics-server.yaml
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -138,6 +142,18 @@ spec:
       retention: 15d
 ```
 
+### Accessing Prometheus
+Start a port-forward with kubectl as shown below and go to `http://localhost:8081` in your browser.
+```bash
+kubectl -n metrics-system port-forward svc/prometheus-server 8081:80
+```
+
+### Accessing Prometheus Alert Manager
+Start a port-forward with kubectl as shown below and go to `http://localhost:8082` in your browser.
+```bash
+kubectl -n metrics-system port-forward svc/prometheus-alertmanager 8082:9093
+```
+
 ## Grafana Dashboard
 ```yaml:grafana-dashboard.yaml
 ---
@@ -164,7 +180,7 @@ spec:
     datasources:
     datasources.yaml:
       apiVersion: 1
-        plugins: # Modify this section to auto-install plugins on deployment
+        plugins:
         - retrodaredevil-wildgraphql-datasource
         datasources:
         - access: proxy
@@ -186,6 +202,20 @@ spec:
         label: grafana_datasource
         labelValue: "true"
         maxLines: 1000
+```
+
+### Accessing Grafana Dashboard
+Get the admin username and password from the cluster.
+```shell
+% kubectl -n metrics-system get secret grafana -o yaml | yq '.data | with_entries(.value |= @base64d)'
+admin-password: eJACA3ANCxOOxkr6dFY4pkMFvNKcojXSLkmcew3p
+admin-user: admin
+ldap-toml: ""
+```
+
+Start a port-forward with kubectl as shown below and go to `http://localhost:8080` in your browser.
+```bash
+kubectl -n metrics-system port-forward svc/grafana 8080:80
 ```
 
 ## Grafana Loki
@@ -220,7 +250,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   namespace: metrics-system
-  name: loki
+  name: tempo
 spec:
   chart:
     spec:
