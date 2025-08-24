@@ -1,0 +1,108 @@
+# Menu configuration for sidebar navigation
+# This file controls the structure and order of the sidebar menu
+
+sections:
+# Blog section
+- title: "Blog"
+  type: "link"
+  path: "/blog"
+  showDivider: false
+  
+# Application Development
+- title: "Application Development" 
+  type: "section"
+  showDivider: true  # Show divider above this section
+  exclude: true
+  items:
+
+  - id: "backend-setup"
+    label: "Backend Setup"
+    
+  - id: "frontend-setup"
+    label: "Frontend Setup"
+
+  - id: "fullstack-development"
+    label: "Fullstack Development"
+
+  - id: "containerization"
+    label: "Containerization"
+
+- title: "Infrastructure Operations" 
+  type: "section"
+  showDivider: true  # Show divider above this section
+  items:
+  - id: "overview"
+    label: "Overview"
+    
+  - id: "kubernetes"
+    label: "Kubernetes"
+
+  - id: "continuous-delivery"
+    label: "Continuous Delivery"
+
+  - id: "certificate-management"
+    label: "Certificate Management"
+
+  - id: "cluster-ingress"
+    label: "Cluster Ingress"
+
+  - id: "secrets-management"
+    label: "Secrets Management"
+
+  - id: "metrics-and-monitoring"
+    label: "Metrics and Monitoring"
+
+  - id: "file-storage"
+    label: "File Storage"
+
+  - id: "database"
+    label: "Database"
+
+  - id: "policy-enforcement"
+    label: "Policy Enforcement"
+
+  - id: "backups"
+    label: "Backups"
+    exclude: true
+    
+  # # Advanced concepts is excluded from menu by default
+  # # but still accessible via direct URL or search
+  # - id: "advanced-concepts"
+  #   exclude: true
+
+# Example: Hiding an entire section
+# - title: "Work in Progress"
+#   type: "section"
+#   exclude: true  # Hide entire section from navigation
+#   showDivider: true
+#   items:
+#   - id: "draft-feature"
+#     label: "Draft Feature"
+
+# Misc
+- title: "Need Help?"
+  type: "section"
+  showDivider: true
+  items:
+  - id: "contributing"
+    label: "Contributing"
+    exclude: true
+
+  - id: "need-help"
+    label: "Need Help?"
+
+
+# Global menu settings
+settings:
+  autoGenerateLabels: true  # Use markdown titles if no label specified
+  sortItems: false          # Maintain order as defined above
+  showEmptySections: false  # Hide sections with no visible items
+  
+  # Landing page configuration
+  landingPage: "/overview"  # Default page when visiting "/"
+  
+  # GitHub integration (optional)
+  github:
+    enabled: false           # Set to false to disable source links
+    repo: "samintheshell/cookbook"  # GitHub repository (format: "owner/repo")
+    branch: "main"          # Default branch name
