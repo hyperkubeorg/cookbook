@@ -2,11 +2,12 @@
 # This file controls the structure and order of the sidebar menu
 
 sections:
-# Blog section
-- title: "Blog"
-  type: "link"
-  path: "/blog/"
-  showDivider: false
+# disabled for now, I'm not updating this anytime soon.
+# # Blog section 
+# - title: "Blog"
+#   type: "link"
+#   path: "/blog/"
+#   showDivider: false
   
 # Application Development
 - title: "Application Development" 
