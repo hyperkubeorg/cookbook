@@ -5,11 +5,10 @@ import yaml from 'js-yaml'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Function to automatically discover routes from docs and blog files
+// Function to automatically discover routes from docs files
 function discoverRoutes(): string[] {
     const routes = [
         '/',      // Home page
-        '/blog',  // Blog index
         '/404'    // 404 page
     ];
     
@@ -21,15 +20,6 @@ function discoverRoutes(): string[] {
                 .filter(file => file.endsWith('.md'))
                 .map(file => `/${file.replace('.md', '')}`);
             routes.push(...docFiles);
-        }
-        
-        // Get all blog files and create routes
-        const blogDir = path.join(__dirname, 'src/blog');
-        if (fs.existsSync(blogDir)) {
-            const blogFiles = fs.readdirSync(blogDir)
-                .filter(file => file.endsWith('.md'))
-                .map(file => `/blog/${file.replace('.md', '')}`);
-            routes.push(...blogFiles);
         }
     } catch (error) {
         console.warn('Error discovering routes:', error);
@@ -54,7 +44,10 @@ function createStaticFilesPlugin(): Plugin {
             }
             
             const indexContent = fs.readFileSync(indexHtml, 'utf-8');
-            
+
+            // GitHub Pages serves 404.html for any unknown path, letting the SPA render its own 404 page
+            fs.writeFileSync(path.join(distDir, '404.html'), indexContent);
+
             routes.forEach(route => {
                 if (route === '/') return; // Skip root, already handled
                 

@@ -10,7 +10,6 @@ import { Routes, Route, BrowserRouter } from "react-router-dom";
 
 import NotFoundPage from '@/components/pages/404';
 import DocPage from '@/components/pages/DocPage';
-import BlogPage from '@/components/pages/BlogPage';
 import ScrollToTop from '@/components/layout/ScrollToTop';
 import { getBasePath } from '@/utils/basePath';
 
@@ -39,14 +38,8 @@ export default function App() {
             <BrowserRouter basename={basePath}>
                 <ScrollToTop />
                 <Routes>
-                    {/* Root redirects to getting-started */}
+                    {/* Root redirects to the configured landing page */}
                     <Route path="/" element={<DocPage />} />
-                    
-                    {/* Blog routes - support both with and without trailing slash */}
-                    <Route path="/blog" element={<BlogPage />} />
-                    <Route path="/blog/" element={<BlogPage />} />
-                    <Route path="/blog/:slug" element={<BlogPage />} />
-                    <Route path="/blog/:slug/" element={<BlogPage />} />
                     
                     {/* Dynamic documentation routes - support both with and without trailing slash */}
                     <Route path="/:slug" element={<DocPage />} />

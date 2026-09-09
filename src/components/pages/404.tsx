@@ -30,7 +30,7 @@ export default function NotFoundPage() {
     }, []);
 
     const handleGoHome = () => {
-        navigate('/getting-started');
+        navigate('/');
     };
 
     return (
@@ -47,7 +47,7 @@ export default function NotFoundPage() {
                     onClick={handleGoHome}
                     sx={{ mt: 2 }}
                 >
-                    Go to Getting Started
+                    Go to Home
                 </Button>
             </Box>
         </MainLayout>

@@ -5,15 +5,6 @@ export interface DocPage {
   path: string;
 }
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  path: string;
-  date?: string;
-  excerpt?: string;
-}
-
 export interface MenuPage {
   id: string;
   title: string;
@@ -70,43 +61,10 @@ function extractTitle(content: string): string {
   return h1Match ? h1Match[1].trim() : 'Untitled';
 }
 
-// Extract date from blog post content (looks for "Published: Date" pattern)
-function extractDate(content: string): string | undefined {
-  const dateMatch = content.match(/\*Published:\s+([^*]+)\*/);
-  return dateMatch ? dateMatch[1].trim() : undefined;
-}
-
-// Extract excerpt from blog post (first paragraph after title)
-function extractExcerpt(content: string): string | undefined {
-  const lines = content.split('\n');
-  let foundTitle = false;
-  
-  for (const line of lines) {
-    if (line.startsWith('# ') && !foundTitle) {
-      foundTitle = true;
-      continue;
-    }
-    
-    if (foundTitle && line.trim() && !line.startsWith('*Published:')) {
-      // Take first meaningful paragraph, limit to 200 chars
-      const excerpt = line.trim();
-      return excerpt.length > 200 ? excerpt.substring(0, 200) + '...' : excerpt;
-    }
-  }
-  
-  return undefined;
-}
-
 import yaml from 'js-yaml';
 
 // Auto-import all markdown files using Vite's glob imports
 const docModules = import.meta.glob('/src/docs/**/*.md', { 
-  query: '?raw', 
-  import: 'default',
-  eager: false
-});
-
-const blogModules = import.meta.glob('/src/blog/**/*.md', { 
   query: '?raw', 
   import: 'default',
   eager: false
@@ -128,36 +86,6 @@ async function importMarkdownFiles(): Promise<Record<string, string>> {
   return files;
 }
 
-// Import blog posts automatically
-async function importBlogPosts(): Promise<Record<string, string>> {
-  const files: Record<string, string> = {};
-  
-  for (const [filePath, moduleLoader] of Object.entries(blogModules)) {
-    try {
-      const content = await moduleLoader() as string;
-      files[filePath] = content;
-    } catch (error) {
-      console.error(`Failed to load ${filePath}:`, error);
-    }
-  }
-  
-  return files;
-}
-
-// Extract numeric prefix from filename for sorting
-function extractNumericPrefix(filePath: string): number {
-  const filename = filePath.split('/').pop() || '';
-  const match = filename.match(/^(\d{8})-/);
-  return match ? parseInt(match[1], 10) : 0;
-}
-
-// Extract clean ID from filename (without numeric prefix)
-function extractCleanId(filePath: string): string {
-  const filename = filePath.split('/').pop() || '';
-  // Remove .md extension and numeric prefix
-  return filename.replace(/^(\d{8})-/, '').replace('.md', '');
-}
-
 // Load menu configuration from YAML
 export async function loadMenuConfig(): Promise<MenuConfig> {
   try {
@@ -174,19 +102,13 @@ export async function loadMenuConfig(): Promise<MenuConfig> {
           type: "section" as const,
           showDivider: false,
           items: []
-        },
-        {
-          title: "Blog",
-          type: "link" as const,
-          path: "/blog",
-          showDivider: true
         }
       ],
       settings: {
         autoGenerateLabels: true,
         sortItems: false,
         showEmptySections: false,
-        landingPage: "/getting-started",
+        landingPage: "/overview/",
         github: {
           enabled: false,
           repo: "",
@@ -262,43 +184,6 @@ export async function loadAllMarkdownFiles(): Promise<DocPage[]> {
   }
   
   return pages.sort((a, b) => a.title.localeCompare(b.title));
-}
-
-// Load all blog posts
-export async function loadAllBlogPosts(): Promise<BlogPost[]> {
-  const posts: BlogPost[] = [];
-  
-  try {
-    const blogFiles = await importBlogPosts();
-    
-    for (const [filePath, content] of Object.entries(blogFiles)) {
-      const title = extractTitle(content);
-      const date = extractDate(content);
-      const excerpt = extractExcerpt(content);
-      const cleanId = extractCleanId(filePath);
-      const numericPrefix = extractNumericPrefix(filePath);
-      const path = '/blog/' + cleanId.toLowerCase() + '/';
-      
-      posts.push({
-        id: cleanId,
-        title,
-        content,
-        path,
-        date,
-        excerpt,
-        numericPrefix, // Add for sorting
-      } as BlogPost & { numericPrefix: number });
-    }
-  } catch (error) {
-    console.error('Failed to load blog posts:', error);
-  }
-  
-  // Sort by numeric prefix (higher number = newer post)
-  return posts.sort((a, b) => {
-    const aPrefix = (a as any).numericPrefix || 0;
-    const bPrefix = (b as any).numericPrefix || 0;
-    return bPrefix - aPrefix; // Descending order (newest first)
-  });
 }
 
 // Build menu sections from YAML configuration and available docs
@@ -423,26 +308,6 @@ export async function getDocSourceUrl(docId: string): Promise<string | null> {
   return getGitHubSourceUrl(`src/docs/${docId}.md`);
 }
 
-// Generate GitHub source URL for a blog post (with numeric prefix)
-export async function getBlogSourceUrl(blogId: string): Promise<string | null> {
-  try {
-    // Find the actual filename with numeric prefix
-    const blogFiles = await importBlogPosts();
-    for (const filePath of Object.keys(blogFiles)) {
-      const cleanId = extractCleanId(filePath);
-      if (cleanId === blogId) {
-        // Convert to GitHub path (remove /src/ prefix that Vite uses)
-        const githubPath = filePath.replace('/src/', 'src/');
-        return getGitHubSourceUrl(githubPath);
-      }
-    }
-    return null;
-  } catch (error) {
-    console.error('Failed to generate blog source URL:', error);
-    return null;
-  }
-}
-
 // Legacy function for backward compatibility
 export function getMenuPages(allPages: DocPage[]): MenuPage[] {
   // This will be replaced by YAML-based menu
@@ -460,27 +325,11 @@ export function findPageByPath(pages: DocPage[], path: string): DocPage | undefi
   return pages.find(page => page.path === path);
 }
 
-// Find blog post by path
-export function findBlogPostByPath(posts: BlogPost[], path: string): BlogPost | undefined {
-  return posts.find(post => post.path === path);
-}
-
 // Process markdown links to handle internal references
 export function processMarkdownLinks(content: string): string {
   let processedContent = content;
 
-  // Pattern 1: Relative links from docs to blog posts: ../blog/XXXXXXXX-filename.md
-  processedContent = processedContent.replace(
-    /\[([^\]]+)\]\(\.\.\/blog\/(\d{8}-[^)]+\.md)\)/g,
-    (_, text, filename) => {
-      // Extract clean filename without numeric prefix
-      const cleanFilename = filename.replace(/^\d{8}-/, '').replace('.md', '');
-      const targetPath = '/blog/' + cleanFilename.toLowerCase();
-      return `[${text}](${targetPath})`;
-    }
-  );
-
-  // Pattern 2: Relative links from blog to docs: ../docs/filename.md
+  // Pattern 1: Relative links to docs: ../docs/filename.md
   processedContent = processedContent.replace(
     /\[([^\]]+)\]\(\.\.\/docs\/([^)]+\.md)\)/g,
     (_, text, filename) => {
@@ -489,7 +338,7 @@ export function processMarkdownLinks(content: string): string {
     }
   );
 
-  // Pattern 3: Same-directory relative links: ./filename.md
+  // Pattern 2: Same-directory relative links: ./filename.md
   processedContent = processedContent.replace(
     /\[([^\]]+)\]\(\.\/([^)]+\.md)\)/g,
     (_, text, filename) => {
@@ -498,7 +347,7 @@ export function processMarkdownLinks(content: string): string {
     }
   );
 
-  // Pattern 4: Direct relative links without ./ prefix: filename.md
+  // Pattern 3: Direct relative links without ./ prefix: filename.md
   processedContent = processedContent.replace(
     /\[([^\]]+)\]\(([^/)][^)]*\.md)\)/g,
     (_, text, filename) => {
@@ -506,14 +355,7 @@ export function processMarkdownLinks(content: string): string {
       if (filename.startsWith('http') || filename.startsWith('/')) {
         return `[${text}](${filename})`;
       }
-      
-      // Handle blog post files with numeric prefix
-      if (/^\d{8}-/.test(filename)) {
-        const cleanFilename = filename.replace(/^\d{8}-/, '').replace('.md', '');
-        const targetPath = '/blog/' + cleanFilename.toLowerCase();
-        return `[${text}](${targetPath})`;
-      }
-      
+
       // Handle regular doc files
       const targetPath = '/' + filename.replace('.md', '').toLowerCase();
       return `[${text}](${targetPath})`;
@@ -549,9 +391,9 @@ export function searchPages(pages: DocPage[], query: string): DocPage[] {
 export async function getLandingPage(): Promise<string> {
   try {
     const config = await loadMenuConfig();
-    return config.settings.landingPage || '/getting-started';
+    return config.settings.landingPage || '/overview/';
   } catch (error) {
     console.error('Failed to load landing page config:', error);
-    return '/getting-started'; // Fallback default
+    return '/overview/'; // Fallback default
   }
 }

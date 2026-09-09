@@ -45,8 +45,8 @@ const DocPage: React.FC = () => {
         const sections = await buildMenuSections(pages);
         setMenuSections(sections);
         
-        // Handle root path redirect
-        if (!slug && window.location.pathname === '/') {
+        // Handle root path redirect (slug is only empty on the root route)
+        if (!slug) {
           const landingPage = await getLandingPage();
           const normalizedLandingPage = landingPage.endsWith('/') ? landingPage : landingPage + '/';
           navigate(normalizedLandingPage, { replace: true });
@@ -54,7 +54,7 @@ const DocPage: React.FC = () => {
         }
         
         // Find the current page based on the slug
-        const path = slug ? `/${slug}/` : '/getting-started/';
+        const path = `/${slug}/`;
         const page = findPageByPath(pages, path);
         
         if (page) {
